@@ -9,12 +9,38 @@
 * @return a tuple containing the number of platforms used, the optimal total height, and the number of paintings on each platform
 */
 std::tuple<int, int, std::vector<int>> program4(int n, int W, std::vector<int> heights, std::vector<int> widths){
-    /************************
-    * ADD YOUR CODE HERE *
-    ***********************/
-//    return std::make_tuple(0, 0, std::vector<int>()); // replace with your own result.
-    return std::make_tuple(n, 0, heights);
+     std::vector<int> dp(n + 1, INT_MAX);
+    std::vector<int> split(n + 1, -1);
+
+    dp[0] = 0; 
+
+    for (int i = 1; i <= n; ++i) {
+        int maxHeight = 0;
+        int totalWidth = 0;
+
+        for (int j = i; j >= 1; --j) {
+            totalWidth += widths[j - 1];
+            if (totalWidth > W) break; 
+
+            maxHeight = std::max(maxHeight, heights[j - 1]);
+            if (dp[j - 1] + maxHeight < dp[i]) {
+                dp[i] = dp[j - 1] + maxHeight;
+                split[i] = j - 1;
+            }
+        }
+    }
+
+    std::vector<int> platforms;
+    for (int i = n; i > 0; i = split[i]) {
+        platforms.push_back(i - split[i]);
+    }
+    std::reverse(platforms.begin(), platforms.end());
+
+    // Replace this with your own result if needed
+    // return std::make_tuple(0, 0, std::vector<int>()); // replace with your own result.
+    return std::make_tuple(platforms.size(), dp[n], platforms);
 }
+
 int main(){
     int n, W;
     std::cin >> n >> W;
