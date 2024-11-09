@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <tuple>
+#include <algorithm>
+#include <climits>
 /* Solution to program 4
 * @param n the number of paintings
 * @param W the maximum width of the platform
