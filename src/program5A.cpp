@@ -15,23 +15,23 @@ std::tuple<int, int, std::vector<int>> program5A(int n, int W, std::vector<int> 
 //    return std::make_tuple(0, 0, std::vector<int>()); // replace with your own result.
     return std::make_tuple(n, 0, heights);
 }
-int main(){
-    int n, W;
-    std::cin >> n >> W;
-    std::vector<int> heights(n);
-    std::vector<int> widths(n);
-    for(int i = 0; i < n; i++){
-        std::cin >> heights[i];
-    }
-    for(int i = 0; i < n; i++){
-        std::cin >> widths[i];
-    }
-    auto result = program5A(n, W, heights, widths);
-
-    std::cout << std::get<0>(result) << std::endl;
-    std::cout << std::get<1>(result) << std::endl;
-    for(int i = 0; i < std::get<0>(result); i++){
-        std::cout << std::get<2>(result)[i] << std::endl;
-    }
-    return 0; 
-}
+//int main(){
+//    int n, W;
+//    std::cin >> n >> W;
+//    std::vector<int> heights(n);
+//    std::vector<int> widths(n);
+//    for(int i = 0; i < n; i++){
+//        std::cin >> heights[i];
+//    }
+//    for(int i = 0; i < n; i++){
+//        std::cin >> widths[i];
+//    }
+//    auto result = program5A(n, W, heights, widths);
+//
+//    std::cout << std::get<0>(result) << std::endl;
+//    std::cout << std::get<1>(result) << std::endl;
+//    for(int i = 0; i < std::get<0>(result); i++){
+//        std::cout << std::get<2>(result)[i] << std::endl;
+//    }
+//    return 0;
+//}
