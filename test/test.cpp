@@ -138,10 +138,10 @@ TEST_CASE("testing if sequences with only one local minimum give the same result
     rc::prop("Descending: Check if all the paintings and total height are consistent across programs 3,4,5A,5B",
              []()
              {
-                 int n = *rc::gen::inRange(1, 25).as("Number of paintings (n)");
-                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()).as("Maximum Width (W)");
+                 int n = *rc::gen::inRange(1, 30).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("Maximum Width (W)");
 
-                 int firstHeight = *rc::gen::inRange(1, 10000000).as("FirstHeight");
+                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("FirstHeight");
                  std::vector<int> heights = *rc::gen::apply(
                          [n, firstHeight]() {
                              std::vector<int> heights;
@@ -240,10 +240,10 @@ TEST_CASE("testing if sequences with only one local minimum give the same result
     rc::prop("Random Minimum: Check if all the paintings and total height are consistent across programs 3,4,5A,5B",
              []()
              {
-                 int n = *rc::gen::inRange(1, 25).as("Number of paintings (n)");
-                 int W = *rc::gen::inRange(1, 10).as("Maximum Width (W)");
+                 int n = *rc::gen::inRange(1, 30).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("Maximum Width (W)");
 
-                 int firstHeight = *rc::gen::inRange(1, 10000000).as("FirstHeight");
+                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("FirstHeight");
                  std::vector<int> heights = *rc::gen::apply(
                          [n, firstHeight]() {
                              std::vector<int> heights;
@@ -322,18 +322,34 @@ TEST_CASE("testing if sequences with only one local minimum give the same result
                  std::string log_output = ss.str();
                  RC_LOG(log_output);
 
-                 // Assertions to ensure all programs return the same total_number_of_paintings
-                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings4);
-                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings5a);
-                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings5b);
-
-                 // Assertions to ensure all programs return the same total_height
-                 RC_ASSERT(total_height3 == total_height4);
-                 RC_ASSERT(total_height3 == total_height5a);
-                 RC_ASSERT(total_height3 == total_height5b);
-
-                 // Assertion to ensure total_number_of_paintings equals n
-                 RC_ASSERT(total_number_of_paintings3 == n);
+                 // Detailed Assertion Logs
+                 if (heights.size() != n) {
+                     RC_FAIL("heights.size() != n");
+                 }
+                 if (widths.size() != n) {
+                     RC_FAIL("widths.size() != n");
+                 }
+                 if (total_number_of_paintings3 != total_number_of_paintings4) {
+                     RC_FAIL("total_number_of_paintings3 != total_number_of_paintings4");
+                 }
+                 if (total_number_of_paintings3 != total_number_of_paintings5a) {
+                     RC_FAIL("total_number_of_paintings3 != total_number_of_paintings5a");
+                 }
+                 if (total_number_of_paintings3 != total_number_of_paintings5b) {
+                     RC_FAIL("total_number_of_paintings3 != total_number_of_paintings5b");
+                 }
+                 if (total_height3 != total_height4) {
+                     RC_FAIL("total_height3 != total_height4");
+                 }
+                 if (total_height3 != total_height5a) {
+                     RC_FAIL("total_height3 != total_height5a");
+                 }
+                 if (total_height3 != total_height5b) {
+                     RC_FAIL("total_height3 != total_height5b");
+                 }
+                 if (total_number_of_paintings3 != n) {
+                     RC_FAIL("total_number_of_paintings3 != n");
+                 }
 
                  return true;
              });
@@ -342,10 +358,10 @@ TEST_CASE("testing if sequences with only one local minimum give the same result
     rc::prop("Non-Decreasing: Check if all the paintings and total height are consistent across programs 3,4,5A,5B",
              []()
              {
-                 int n = *rc::gen::inRange(1, 25).as("Number of paintings (n)");
-                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()).as("Maximum Width (W)");
+                 int n = *rc::gen::inRange(1, 30).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("Maximum Width (W)");
 
-                 int firstHeight = *rc::gen::inRange(1, 10000000).as("FirstHeight");
+                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("FirstHeight");
                  std::vector<int> heights = *rc::gen::apply(
                          [n, firstHeight]() {
                              std::vector<int> heights;
@@ -411,18 +427,34 @@ TEST_CASE("testing if sequences with only one local minimum give the same result
                  std::string log_output = ss.str();
                  RC_LOG(log_output);
 
-                 // Assertions to ensure all programs return the same total_number_of_paintings
-                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings4);
-                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings5a);
-                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings5b);
-
-                 // Assertions to ensure all programs return the same total_height
-                 RC_ASSERT(total_height3 == total_height4);
-                 RC_ASSERT(total_height3 == total_height5a);
-                 RC_ASSERT(total_height3 == total_height5b);
-
-                 // Assertion to ensure total_number_of_paintings equals n
-                 RC_ASSERT(total_number_of_paintings3 == n);
+                 // Detailed Assertion Logs
+                 if (heights.size() != n) {
+                     RC_FAIL("heights.size() != n");
+                 }
+                 if (widths.size() != n) {
+                     RC_FAIL("widths.size() != n");
+                 }
+                 if (total_number_of_paintings3 != total_number_of_paintings4) {
+                     RC_FAIL("total_number_of_paintings3 != total_number_of_paintings4");
+                 }
+                 if (total_number_of_paintings3 != total_number_of_paintings5a) {
+                     RC_FAIL("total_number_of_paintings3 != total_number_of_paintings5a");
+                 }
+                 if (total_number_of_paintings3 != total_number_of_paintings5b) {
+                     RC_FAIL("total_number_of_paintings3 != total_number_of_paintings5b");
+                 }
+                 if (total_height3 != total_height4) {
+                     RC_FAIL("total_height3 != total_height4");
+                 }
+                 if (total_height3 != total_height5a) {
+                     RC_FAIL("total_height3 != total_height5a");
+                 }
+                 if (total_height3 != total_height5b) {
+                     RC_FAIL("total_height3 != total_height5b");
+                 }
+                 if (total_number_of_paintings3 != n) {
+                     RC_FAIL("total_number_of_paintings3 != n");
+                 }
 
                  return true;
              });
