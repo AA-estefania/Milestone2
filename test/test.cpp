@@ -27,6 +27,22 @@ std::string vectorToString(const std::vector<int>& vec) {
     return ss.str();
 }
 
+
+std::string print2DVector(const std::vector<std::vector<int>>& vec) {
+    std::stringstream ss;
+    ss << "[\n";
+    for (const auto& row : vec) {
+        ss << "  [";
+        for (size_t i = 0; i < row.size(); ++i) {
+            ss << row[i];
+            if (i != row.size() - 1) ss << ", ";
+        }
+        ss << "],\n";
+    }
+    ss << "]";
+    return ss.str();
+}
+
 TEST_CASE("Example Test", "[flag]"){
 
     int one =1;
@@ -51,6 +67,100 @@ TEST_CASE("Example  Test", "[property]"){
              });
 }
 
+// Property-Based Test for generateCumulativeWidths
+TEST_CASE("Property-Based Test for generateCumulativeWidths", "[generateCumulativeWidths][property]") {
+    rc::prop("Cumulative widths are correctly computed for all start-end pairs", [](const std::vector<int>& widths) {
+        // Generate the cumulative widths using the function
+        std::vector<std::vector<long>> cumulativeWidths = generateCumulativeWidths(widths);
+        int n = widths.size();
+
+        // Property 1: Row Count
+        RC_ASSERT(cumulativeWidths.size() == n);
+
+        // Iterate over each start index
+        for (int start = 0; start < n; ++start) {
+            // Property 2: Row Length
+            RC_ASSERT(cumulativeWidths[start].size() == (n - start));
+
+            int sum = 0;
+
+            // Iterate over each end index in the current row
+            for (int offset = 0; offset < (n - start); ++offset) {
+                int end = start + offset;
+                sum += widths[end];
+
+                // Property 3: Cumulative Sum
+                RC_ASSERT(cumulativeWidths[start][offset] == sum);
+            }
+        }
+
+        return true;
+    });
+}
+
+// Specific Test Case to Confirm Functionality
+TEST_CASE("Program 5: Test generateCumulativeWidths Function", "[generateCumulativeWidths][specific]") {
+    // Example 1
+    std::vector<int> widths1 = {1, 2, 3};
+    std::vector<std::vector<long>> result1 = generateCumulativeWidths(widths1);
+    //std::cout << "Example 1:\n" << print2DVector(result1) << "\n\n";
+
+    // Expected Output: [[1, 3, 6], [2, 5], [3]]
+    std::vector<std::vector<long>> expected1 = {
+            {1, 3, 6},
+            {2, 5},
+            {3}
+    };
+    REQUIRE(result1 == expected1);
+
+    // Example 2 (User's Specific Case)
+    std::vector<int> widths2 = {23278, 24267, 26282, 11580, 25721};
+    std::vector<std::vector<long>> result2 = generateCumulativeWidths(widths2);
+    //std::cout << "Example 2 (User's Specific Case):\n" << print2DVector(result2) << "\n\n";
+
+    // Expected Output:
+    // [
+    //   [23278, 47545, 73827, 85307, 111128],
+    //   [24267, 50549, 62129, 87850],
+    //   [26282, 37862, 63583],
+    //   [11580, 37301],
+    //   [25721]
+    // ]
+    std::vector<std::vector<long>> expected2 = {
+            {23278, 47545, 73827, 85407, 111128},
+            {24267, 50549, 62129, 87850},
+            {26282, 37862, 63583},
+            {11580, 37301},
+            {25721}
+    };
+    REQUIRE(result2 == expected2);
+
+    // Additional Example 3
+    std::vector<int> widths3 = {7, 1, 2, 3, 5, 8, 1};
+    std::vector<std::vector<long>> result3 = generateCumulativeWidths(widths3);
+    //std::cout << "Example 3:\n" << print2DVector(result3) << "\n\n";
+
+    // Expected Output:
+    // [
+    //   [7, 8, 10, 13, 18, 26, 27],
+    //   [1, 3, 6, 11, 19, 20],
+    //   [2, 5, 10, 18, 19],
+    //   [3, 8, 16, 17],
+    //   [5, 13, 14],
+    //   [8, 9],
+    //   [1]
+    // ]
+    std::vector<std::vector<long>> expected3 = {
+            {7, 8, 10, 13, 18, 26, 27},
+            {1, 3, 6, 11, 19, 20},
+            {2, 5, 10, 18, 19},
+            {3, 8, 16, 17},
+            {5, 13, 14},
+            {8, 9},
+            {1}
+    };
+    REQUIRE(result3 == expected3);
+}
 
 
 TEST_CASE("testing if sequences with only one local minimum give the same results for programs 2,3, and 4", "[property]"){
@@ -1044,6 +1154,113 @@ TEST_CASE("testing program 1 total number of paintings on each platform= total p
                  return true;
 
              });
+}
+
+
+TEST_CASE("Specific test for Example with n=6, W=10, heights=[2,1,8,10,9,7], widths=[1,1,8,1,2,2]", "[specific][given]") {
+    // Define the specific inputs
+    int n = 6;
+    int W = 10;
+    std::vector<int> heights = {2, 1, 8, 10, 9, 7};
+    std::vector<int> widths = {1, 1, 8, 1, 2, 2};
+
+    // Verify the sizes of heights and widths
+    REQUIRE(heights.size() == n);
+    REQUIRE(widths.size() == n);
+
+    // Define the expected outputs based on the grouping logic
+    int expected_number_of_platforms = 2;
+    int expected_total_height = 18; // 8 (Platform1) + 10 (Platform2)
+    std::vector<int> expected_num_paintings_per_platform = {3, 3};
+
+
+
+        // SECTION for program3
+    SECTION("Program3 Verification") {
+        auto [num_p3, th3, npp3] = program3(n, W, heights, widths);
+
+        // Log the outputs
+        std::stringstream ss;
+        ss << "Program3 - Platforms: " << num_p3
+           << ", Total Height: " << th3
+           << ", Num Paintings per Platform: " << vectorToString(npp3);
+        INFO(ss.str());
+
+        // Assertions for program3
+        REQUIRE(num_p3 == expected_number_of_platforms);
+        REQUIRE(th3 == expected_total_height);
+        REQUIRE(npp3 == expected_num_paintings_per_platform);
+        REQUIRE(std::accumulate(npp3.begin(), npp3.end(), 0) == n);
+    }
+
+        // SECTION for program4
+    SECTION("Program4 Verification") {
+        auto [num_p4, th4, npp4] = program4(n, W, heights, widths);
+
+        // Log the outputs
+        std::stringstream ss;
+        ss << "Program4 - Platforms: " << num_p4
+           << ", Total Height: " << th4
+           << ", Num Paintings per Platform: " << vectorToString(npp4);
+        INFO(ss.str());
+
+        // Assertions for program4
+        REQUIRE(num_p4 == expected_number_of_platforms);
+        REQUIRE(th4 == expected_total_height);
+        REQUIRE(npp4 == expected_num_paintings_per_platform);
+        REQUIRE(std::accumulate(npp4.begin(), npp4.end(), 0) == n);
+    }
+
+        // SECTION for program5B
+    SECTION("Program5B Verification") {
+        auto [num_p5b, th5b, npp5b] = program5B(n, W, heights, widths);
+
+        // Log the outputs
+        std::stringstream ss;
+        ss << "Program5B - Platforms: " << num_p5b
+           << ", Total Height: " << th5b
+           << ", Num Paintings per Platform: " << vectorToString(npp5b);
+        INFO(ss.str());
+
+        // Assertions for program5B
+        REQUIRE(num_p5b == expected_number_of_platforms);
+        REQUIRE(th5b == expected_total_height);
+        REQUIRE(npp5b == expected_num_paintings_per_platform);
+        REQUIRE(std::accumulate(npp5b.begin(), npp5b.end(), 0) == n);
+    }
+
+        // SECTION to verify consistency across all programs
+    SECTION("Consistency Across Programs  3, 4, and 5B") {
+        auto [num_p3, th3, npp3] = program3(n, W, heights, widths);
+        auto [num_p4, th4, npp4] = program4(n, W, heights, widths);
+        auto [num_p5b, th5b, npp5b] = program5B(n, W, heights, widths);
+
+        // Log the outputs
+        std::stringstream ss;
+        ss << "Consistency Check:\n";
+        ss << "Program3 - Platforms: " << num_p3 << ", Total Height: " << th3 << ", Num Paintings per Platform: " << vectorToString(npp3) << "\n";
+        ss << "Program4 - Platforms: " << num_p4 << ", Total Height: " << th4 << ", Num Paintings per Platform: " << vectorToString(npp4) << "\n";
+        ss << "Program5B - Platforms: " << num_p5b << ", Total Height: " << th5b << ", Num Paintings per Platform: " << vectorToString(npp5b) << "\n";
+        INFO(ss.str());
+
+        // Assertions to ensure all programs return the same number_of_platforms
+        REQUIRE(num_p3 == num_p4);
+        REQUIRE(num_p3 == num_p5b);
+
+        // Assertions to ensure all programs return the same total_height
+        REQUIRE(th3 == th4);
+        REQUIRE(th3 == th5b);
+
+        // Assertions to ensure all programs return the same num_paintings_per_platform
+        REQUIRE(npp3 == npp4);
+        REQUIRE(npp3 == npp5b);
+
+        // Assertions to ensure total_number_of_paintings equals n for all programs
+        REQUIRE(std::accumulate(npp3.begin(), npp3.end(), 0) == n);
+        REQUIRE(std::accumulate(npp3.begin(), npp3.end(), 0) == n);
+        REQUIRE(std::accumulate(npp4.begin(), npp4.end(), 0) == n);
+        REQUIRE(std::accumulate(npp5b.begin(), npp5b.end(), 0) == n);
+    }
 }
 
 
