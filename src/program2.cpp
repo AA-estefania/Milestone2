@@ -92,6 +92,10 @@ std::tuple<int, int, std::vector<int>> program2(int n, int MAX_WIDTH, const std:
     }
 
     if(total_counted<n and not index){
+        if(totalPaintings[increasing_index_totalPaintings]>=MAX_WIDTH){
+            totalPaintings.insert(totalPaintings.begin()+increasing_index_totalPaintings,0);
+            current_max_height=0;
+        }
         totalPaintings[increasing_index_totalPaintings] += 1;
         if(heights[0]>current_max_height){
             totalCost+=heights[0]-current_max_height;
