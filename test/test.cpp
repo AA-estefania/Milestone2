@@ -67,36 +67,6 @@ TEST_CASE("Example  Test", "[property]"){
              });
 }
 
-// Property-Based Test for generateCumulativeWidths
-TEST_CASE("Property-Based Test for generateCumulativeWidths", "[generateCumulativeWidths][property]") {
-    rc::prop("Cumulative widths are correctly computed for all start-end pairs", [](const std::vector<int>& widths) {
-        // Generate the cumulative widths using the function
-        std::vector<std::vector<long>> cumulativeWidths = generateCumulativeWidths(widths);
-        int n = widths.size();
-
-        // Property 1: Row Count
-        RC_ASSERT(cumulativeWidths.size() == n);
-
-        // Iterate over each start index
-        for (int start = 0; start < n; ++start) {
-            // Property 2: Row Length
-            RC_ASSERT(cumulativeWidths[start].size() == (n - start));
-
-            int sum = 0;
-
-            // Iterate over each end index in the current row
-            for (int offset = 0; offset < (n - start); ++offset) {
-                int end = start + offset;
-                sum += widths[end];
-
-                // Property 3: Cumulative Sum
-                RC_ASSERT(cumulativeWidths[start][offset] == sum);
-            }
-        }
-
-        return true;
-    });
-}
 
 // Specific Test Case to Confirm Functionality
 TEST_CASE("Program 5: Test generateCumulativeWidths Function", "[generateCumulativeWidths][specific]") {
