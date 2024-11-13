@@ -26,13 +26,10 @@ include_directories(src)
 add_subdirectory(rapidcheck)
 #include_directories(rapidcheck/extras/gtest/include)
 
-add_executable(runMain src/a.cpp)
-
 
 
 add_executable(Tests
-        test/test.cpp # your test file
-        # add your own header files below
+        test/test.cpp
 )
 
 
