@@ -10,7 +10,7 @@
 * @return a tuple containing the number of platforms used, the optimal total height, and the number of paintings on each platform
 */
 std::tuple<int, int, std::vector<int>> program3(int n, int W, std::vector<int> heights, std::vector<int> widths){
-   int minHeight = INT_MAX;
+    long minHeight = INT_MAX;
     int bestPlatformCount = 0;
     std::vector<int> bestPaintingsOnPlatforms;
 
@@ -20,7 +20,7 @@ std::tuple<int, int, std::vector<int>> program3(int n, int W, std::vector<int> h
     for (int mask = 0; mask < totalCombinations; mask++) {
         int currentPlatformWidth = 0;
         int currentPlatformHeight = 0;
-        int totalHeight = 0;
+        long totalHeight = 0;
         int platformCount = 1;
         std::vector<int> paintingsOnPlatforms;
         int paintingCount = 0;
