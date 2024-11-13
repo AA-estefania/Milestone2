@@ -11,20 +11,20 @@
 * @return a tuple containing the number of platforms used, the optimal total height, and the number of paintings on each platform
 */
 std::tuple<int, int, std::vector<int>> program4(int n, int W, std::vector<int> heights, std::vector<int> widths){
-     std::vector<long> dp(n + 1, INT_MAX);
-    std::vector<int> split(n + 1, -1);
+     std::vector<long> dp(n + 1, LONG_MAX);
+    std::vector<long> split(n + 1, -1);
 
     dp[0] = 0; 
 
     for (int i = 1; i <= n; ++i) {
-        int maxHeight = 0;
-        int totalWidth = 0;
+        long maxHeight = 0;
+        long totalWidth = 0;
 
         for (int j = i; j >= 1; --j) {
             totalWidth += widths[j - 1];
             if (totalWidth > W) break; 
 
-            maxHeight = std::max(maxHeight, heights[j - 1]);
+            maxHeight = std::max(maxHeight, (long)heights[j - 1]);
             if (dp[j - 1] + maxHeight < dp[i]) {
                 dp[i] = dp[j - 1] + maxHeight;
                 split[i] = j - 1;
@@ -33,7 +33,7 @@ std::tuple<int, int, std::vector<int>> program4(int n, int W, std::vector<int> h
     }
 
     std::vector<int> platforms;
-    for (int i = n; i > 0; i = split[i]) {
+    for (auto i = n; i > 0; i = split[i]) {
         platforms.push_back(i - split[i]);
     }
     std::reverse(platforms.begin(), platforms.end());
