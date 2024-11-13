@@ -39,38 +39,47 @@ int getMaxInSubrange(const std::vector<int>& vec, int start, int end) {
 
 
 
-std::tuple<int, int, std::vector<int>> program5B(int n, int MAX_WIDTH, std::vector<int> heights, std::vector<int> widths){
-    auto distance_matrix= generateCumulativeWidths(widths); //O(n^2)
-    std::vector<long> totalCosts(n+1,0);
+std::tuple<int, int, std::vector<int>> program5B(int n, int MAX_WIDTH, const std::vector<int>& heights, const std::vector<int>& widths) {
+    // Initialize totalCosts and shelf_start_indices
+    std::vector<long> totalCosts(n + 1, std::numeric_limits<long>::max());
+    std::vector<int> shelf_start_indices(n + 1, -1);
+    totalCosts[0] = 0; // Base case: cost of zero paintings is zero
+
+    std::vector<int> cumulative_widths(n + 1, 0);
+    for (int i = 0; i < n; ++i) {
+        cumulative_widths[i + 1] = cumulative_widths[i] + widths[i];
+    }
+
+    for (int end_index = 0; end_index < n; ++end_index) {
+        int max_height = 0;
+        for (int start_index = end_index; start_index >= 0; --start_index) {
+            int width = cumulative_widths[end_index + 1] - cumulative_widths[start_index];
+            if (width > MAX_WIDTH) {
+                break; // Cannot include more paintings on this shelf
+            }
+            max_height = std::max(max_height, heights[start_index]);
+            long cost = totalCosts[start_index] + max_height;
+            if (cost < totalCosts[end_index + 1]) {
+                totalCosts[end_index + 1] = cost;
+                shelf_start_indices[end_index + 1] = start_index;
+            }
+        }
+    }
+
+    // Reconstruct the number of paintings per shelf
     std::vector<int> numberOfPaintingsPerShelf;
-
-
-    for(int end_index=0;end_index<n;++end_index){
-        std::vector<long>possibleCosts;
-        for (int start_index = end_index; start_index >=0; --start_index) {
-            if(distance_matrix[start_index][end_index-start_index]<=MAX_WIDTH){
-                auto cost = getMaxInSubrange(heights,start_index, end_index)+totalCosts[start_index];
-                possibleCosts.push_back(cost);
-            }
-            else{
-                break;
-            }
-        }
-        totalCosts[end_index+1] = *std::min_element(possibleCosts.begin(), possibleCosts.end());
+    int index = n;
+    while (index > 0) {
+        int shelf_start = shelf_start_indices[index];
+        int num_paintings_on_shelf = index - shelf_start;
+        numberOfPaintingsPerShelf.push_back(num_paintings_on_shelf);
+        index = shelf_start; // Move to the previous shelf
     }
-
-    //calculate the heights
-    int last_index=n;
-    for(int i=last_index-1; i>=0; --i){
-        if(totalCosts[last_index]-totalCosts[i]==heights[i] or not totalCosts[i]){
-            numberOfPaintingsPerShelf.push_back(last_index - i);
-            last_index=i;
-        }
-    }
-
     std::reverse(numberOfPaintingsPerShelf.begin(), numberOfPaintingsPerShelf.end());
 
-    return std::make_tuple(numberOfPaintingsPerShelf.size(), totalCosts.back(), numberOfPaintingsPerShelf);
+    int total_height = totalCosts[n];
+
+    return std::make_tuple(numberOfPaintingsPerShelf.size(), total_height, numberOfPaintingsPerShelf);
 }
 //int main(){
 //    int n, W;
