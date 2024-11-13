@@ -132,6 +132,298 @@ TEST_CASE("Program 5: Test generateCumulativeWidths Function", "[generateCumulat
     REQUIRE(result3 == expected3);
 }
 
+
+TEST_CASE("Testing sequences with multiple local minima and random numbers for programs 3,4,5A,5B", "[property]"){
+
+    // Property 1: Two Local Minima
+    rc::prop("Two Local Minima: Check if all the paintings and total height are consistent across programs 3,4,5A,5B",
+             []()
+             {
+                 int n = *rc::gen::inRange(5, 35).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("Maximum Width (W)");
+
+                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("FirstHeight");
+                 std::vector<int> heights = *rc::gen::apply(
+                         [n, firstHeight]() {
+                             std::vector<int> heights;
+                             heights.reserve(n);
+                             heights.push_back(firstHeight);
+
+                             std::random_device rd;
+                             std::mt19937 gen(rd());
+
+                             // Determine positions of two local minima
+                             int k1 = n / 3;
+                             int k2 = 2 * n / 3;
+
+                             for (int i = 1; i < n; ++i) {
+                                 int prevHeight = heights.back();
+                                 int nextHeight = prevHeight;
+
+                                 if (i < k1) {
+                                     // Decreasing to first minimum
+                                     std::uniform_int_distribution<> distrib(0, prevHeight);
+                                     nextHeight = distrib(gen);
+                                 } else if (i == k1) {
+                                     // First local minimum
+                                     nextHeight = prevHeight;
+                                 } else if (i > k1 && i < k2) {
+                                     // Increasing to second peak
+                                     std::uniform_int_distribution<> distrib(prevHeight, firstHeight);
+                                     nextHeight = distrib(gen);
+                                 } else if (i == k2) {
+                                     // Second local minimum
+                                     std::uniform_int_distribution<> distrib(0, firstHeight);
+                                     nextHeight = distrib(gen);
+                                 } else {
+                                     // Increasing again
+                                     std::uniform_int_distribution<> distrib(prevHeight, firstHeight);
+                                     nextHeight = distrib(gen);
+                                 }
+                                 heights.push_back(nextHeight);
+                             }
+                             return heights;
+                         }
+                 ).as("heights");
+
+                 std::vector<int> widths = *rc::gen::container<std::vector<int>>(n, rc::gen::inRange(1, W)).as("widths");
+
+                 // Assertions to ensure correct sizes
+                 RC_ASSERT(heights.size() == n);
+                 RC_ASSERT(widths.size() == n);
+
+                 // Call programs
+                 auto [number_of_platforms3, total_height3, num_paintings_per_platform3] = program3(n, W, heights, widths);
+                 int total_number_of_paintings3 = std::accumulate(num_paintings_per_platform3.begin(), num_paintings_per_platform3.end(), 0);
+
+                 auto [number_of_platforms4, total_height4, num_paintings_per_platform4] = program4(n, W, heights, widths);
+                 int total_number_of_paintings4 = std::accumulate(num_paintings_per_platform4.begin(), num_paintings_per_platform4.end(), 0);
+
+                 auto [number_of_platforms5a, total_height5a, num_paintings_per_platform5a] = program5A(n, W, heights, widths);
+                 int total_number_of_paintings5a = std::accumulate(num_paintings_per_platform5a.begin(), num_paintings_per_platform5a.end(), 0);
+
+                 auto [number_of_platforms5b, total_height5b, num_paintings_per_platform5b] = program5B(n, W, heights, widths);
+                 int total_number_of_paintings5b = std::accumulate(num_paintings_per_platform5b.begin(), num_paintings_per_platform5b.end(), 0);
+
+                 // Logging all results
+                 std::stringstream ss;
+                 ss << "Property: Two Local Minima\n";
+                 ss << "n (" << n << "), W (" << W << "):\n";
+                 ss << "  Heights size: " << heights.size() << "\n";
+                 ss << "  Widths size: " << widths.size() << "\n";
+                 ss << "  Program3 - Platforms: " << number_of_platforms3 << ", Total Height: " << total_height3
+                    << ", Total Paintings: " << total_number_of_paintings3 << "\n";
+                 ss << "  Program4 - Platforms: " << number_of_platforms4 << ", Total Height: " << total_height4
+                    << ", Total Paintings: " << total_number_of_paintings4 << "\n";
+                 ss << "  Program5A - Platforms: " << number_of_platforms5a << ", Total Height: " << total_height5a
+                    << ", Total Paintings: " << total_number_of_paintings5a << "\n";
+                 ss << "  Program5B - Platforms: " << number_of_platforms5b << ", Total Height: " << total_height5b
+                    << ", Total Paintings: " << total_number_of_paintings5b << "\n";
+                 ss << "  num_paintings_per_platform3: " << vectorToString(num_paintings_per_platform3) << "\n";
+                 ss << "  num_paintings_per_platform4: " << vectorToString(num_paintings_per_platform4) << "\n";
+                 ss << "  num_paintings_per_platform5a: " << vectorToString(num_paintings_per_platform5a) << "\n";
+                 ss << "  num_paintings_per_platform5b: " << vectorToString(num_paintings_per_platform5b) << "\n";
+
+                 std::string log_output = ss.str();
+                 RC_LOG(log_output);
+
+                 // Assertions to ensure all programs return the same results
+                 RC_ASSERT(heights.size() == n);
+                 RC_ASSERT(widths.size() == n);
+                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings4);
+                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings5a);
+                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings5b);
+                 RC_ASSERT(total_height3 == total_height4);
+                 RC_ASSERT(total_height3 == total_height5a);
+                 RC_ASSERT(total_height3 == total_height5b);
+                 RC_ASSERT(total_number_of_paintings3 == n);
+
+                 return true;
+             });
+
+    // Property 2: Three Local Minima
+    rc::prop("Three Local Minima: Check if all the paintings and total height are consistent across programs 3,4,5A,5B",
+             []()
+             {
+                 int n = *rc::gen::inRange(7, 35).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("Maximum Width (W)");
+
+                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("FirstHeight");
+                 std::vector<int> heights = *rc::gen::apply(
+                         [n, firstHeight]() {
+                             std::vector<int> heights;
+                             heights.reserve(n);
+                             heights.push_back(firstHeight);
+
+                             std::random_device rd;
+                             std::mt19937 gen(rd());
+
+                             // Determine positions of three local minima
+                             int k1 = n / 4;
+                             int k2 = n / 2;
+                             int k3 = 3 * n / 4;
+
+                             for (int i = 1; i < n; ++i) {
+                                 int prevHeight = heights.back();
+                                 int nextHeight = prevHeight;
+
+                                 if (i < k1) {
+                                     // Decreasing to first minimum
+                                     std::uniform_int_distribution<> distrib(0, prevHeight);
+                                     nextHeight = distrib(gen);
+                                 } else if (i == k1) {
+                                     // First local minimum
+                                     nextHeight = prevHeight;
+                                 } else if (i > k1 && i < k2) {
+                                     // Increasing to second peak
+                                     std::uniform_int_distribution<> distrib(prevHeight, firstHeight);
+                                     nextHeight = distrib(gen);
+                                 } else if (i == k2) {
+                                     // Second local minimum
+                                     std::uniform_int_distribution<> distrib(0, firstHeight);
+                                     nextHeight = distrib(gen);
+                                 } else if (i > k2 && i < k3) {
+                                     // Increasing to third peak
+                                     std::uniform_int_distribution<> distrib(prevHeight, firstHeight);
+                                     nextHeight = distrib(gen);
+                                 } else if (i == k3) {
+                                     // Third local minimum
+                                     std::uniform_int_distribution<> distrib(0, firstHeight);
+                                     nextHeight = distrib(gen);
+                                 } else {
+                                     // Increasing again
+                                     std::uniform_int_distribution<> distrib(prevHeight, firstHeight);
+                                     nextHeight = distrib(gen);
+                                 }
+                                 heights.push_back(nextHeight);
+                             }
+                             return heights;
+                         }
+                 ).as("heights");
+
+                 std::vector<int> widths = *rc::gen::container<std::vector<int>>(n, rc::gen::inRange(1, W)).as("widths");
+
+                 // Assertions to ensure correct sizes
+                 RC_ASSERT(heights.size() == n);
+                 RC_ASSERT(widths.size() == n);
+
+                 // Call programs
+                 auto [number_of_platforms3, total_height3, num_paintings_per_platform3] = program3(n, W, heights, widths);
+                 int total_number_of_paintings3 = std::accumulate(num_paintings_per_platform3.begin(), num_paintings_per_platform3.end(), 0);
+
+                 auto [number_of_platforms4, total_height4, num_paintings_per_platform4] = program4(n, W, heights, widths);
+                 int total_number_of_paintings4 = std::accumulate(num_paintings_per_platform4.begin(), num_paintings_per_platform4.end(), 0);
+
+                 auto [number_of_platforms5a, total_height5a, num_paintings_per_platform5a] = program5A(n, W, heights, widths);
+                 int total_number_of_paintings5a = std::accumulate(num_paintings_per_platform5a.begin(), num_paintings_per_platform5a.end(), 0);
+
+                 auto [number_of_platforms5b, total_height5b, num_paintings_per_platform5b] = program5B(n, W, heights, widths);
+                 int total_number_of_paintings5b = std::accumulate(num_paintings_per_platform5b.begin(), num_paintings_per_platform5b.end(), 0);
+
+                 // Logging all results
+                 std::stringstream ss;
+                 ss << "Property: Three Local Minima\n";
+                 ss << "n (" << n << "), W (" << W << "):\n";
+                 ss << "  Heights size: " << heights.size() << "\n";
+                 ss << "  Widths size: " << widths.size() << "\n";
+                 ss << "  Program3 - Platforms: " << number_of_platforms3 << ", Total Height: " << total_height3
+                    << ", Total Paintings: " << total_number_of_paintings3 << "\n";
+                 ss << "  Program4 - Platforms: " << number_of_platforms4 << ", Total Height: " << total_height4
+                    << ", Total Paintings: " << total_number_of_paintings4 << "\n";
+                 ss << "  Program5A - Platforms: " << number_of_platforms5a << ", Total Height: " << total_height5a
+                    << ", Total Paintings: " << total_number_of_paintings5a << "\n";
+                 ss << "  Program5B - Platforms: " << number_of_platforms5b << ", Total Height: " << total_height5b
+                    << ", Total Paintings: " << total_number_of_paintings5b << "\n";
+                 ss << "  num_paintings_per_platform3: " << vectorToString(num_paintings_per_platform3) << "\n";
+                 ss << "  num_paintings_per_platform4: " << vectorToString(num_paintings_per_platform4) << "\n";
+                 ss << "  num_paintings_per_platform5a: " << vectorToString(num_paintings_per_platform5a) << "\n";
+                 ss << "  num_paintings_per_platform5b: " << vectorToString(num_paintings_per_platform5b) << "\n";
+
+                 std::string log_output = ss.str();
+                 RC_LOG(log_output);
+
+                 // Assertions to ensure all programs return the same results
+                 RC_ASSERT(heights.size() == n);
+                 RC_ASSERT(widths.size() == n);
+                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings4);
+                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings5a);
+                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings5b);
+                 RC_ASSERT(total_height3 == total_height4);
+                 RC_ASSERT(total_height3 == total_height5a);
+                 RC_ASSERT(total_height3 == total_height5b);
+                 RC_ASSERT(total_number_of_paintings3 == n);
+
+                 return true;
+             });
+
+    // Property 3: Random Numbers
+    rc::prop("Random Numbers: Check if all the paintings and total height are consistent across programs 3,4,5A,5B",
+             []()
+             {
+                 int n = *rc::gen::inRange(1, 35).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("Maximum Width (W)");
+
+                 // Generate random heights
+                 std::vector<int> heights = *rc::gen::container<std::vector<int>>(n, rc::gen::inRange(1, std::numeric_limits<int>::max()/2)).as("heights");
+
+                 // Generate random widths
+                 std::vector<int> widths = *rc::gen::container<std::vector<int>>(n, rc::gen::inRange(1, W)).as("widths");
+
+                 // Assertions to ensure correct sizes
+                 RC_ASSERT(heights.size() == n);
+                 RC_ASSERT(widths.size() == n);
+
+                 // Call programs
+                 auto [number_of_platforms3, total_height3, num_paintings_per_platform3] = program3(n, W, heights, widths);
+                 int total_number_of_paintings3 = std::accumulate(num_paintings_per_platform3.begin(), num_paintings_per_platform3.end(), 0);
+
+                 auto [number_of_platforms4, total_height4, num_paintings_per_platform4] = program4(n, W, heights, widths);
+                 int total_number_of_paintings4 = std::accumulate(num_paintings_per_platform4.begin(), num_paintings_per_platform4.end(), 0);
+
+                 auto [number_of_platforms5a, total_height5a, num_paintings_per_platform5a] = program5A(n, W, heights, widths);
+                 int total_number_of_paintings5a = std::accumulate(num_paintings_per_platform5a.begin(), num_paintings_per_platform5a.end(), 0);
+
+                 auto [number_of_platforms5b, total_height5b, num_paintings_per_platform5b] = program5B(n, W, heights, widths);
+                 int total_number_of_paintings5b = std::accumulate(num_paintings_per_platform5b.begin(), num_paintings_per_platform5b.end(), 0);
+
+                 // Logging all results
+                 std::stringstream ss;
+                 ss << "Property: Random Numbers\n";
+                 ss << "n (" << n << "), W (" << W << "):\n";
+                 ss << "  Heights size: " << heights.size() << "\n";
+                 ss << "  Widths size: " << widths.size() << "\n";
+                 ss << "  Program3 - Platforms: " << number_of_platforms3 << ", Total Height: " << total_height3
+                    << ", Total Paintings: " << total_number_of_paintings3 << "\n";
+                 ss << "  Program4 - Platforms: " << number_of_platforms4 << ", Total Height: " << total_height4
+                    << ", Total Paintings: " << total_number_of_paintings4 << "\n";
+                 ss << "  Program5A - Platforms: " << number_of_platforms5a << ", Total Height: " << total_height5a
+                    << ", Total Paintings: " << total_number_of_paintings5a << "\n";
+                 ss << "  Program5B - Platforms: " << number_of_platforms5b << ", Total Height: " << total_height5b
+                    << ", Total Paintings: " << total_number_of_paintings5b << "\n";
+                 ss << "  num_paintings_per_platform3: " << vectorToString(num_paintings_per_platform3) << "\n";
+                 ss << "  num_paintings_per_platform4: " << vectorToString(num_paintings_per_platform4) << "\n";
+                 ss << "  num_paintings_per_platform5a: " << vectorToString(num_paintings_per_platform5a) << "\n";
+                 ss << "  num_paintings_per_platform5b: " << vectorToString(num_paintings_per_platform5b) << "\n";
+
+                 std::string log_output = ss.str();
+                 RC_LOG(log_output);
+
+                 // Assertions to ensure all programs return the same results
+                 RC_ASSERT(heights.size() == n);
+                 RC_ASSERT(widths.size() == n);
+                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings4);
+                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings5a);
+                 RC_ASSERT(total_number_of_paintings3 == total_number_of_paintings5b);
+                 RC_ASSERT(total_height3 == total_height4);
+                 RC_ASSERT(total_height3 == total_height5a);
+                 RC_ASSERT(total_height3 == total_height5b);
+                 RC_ASSERT(total_number_of_paintings3 == n);
+
+                 return true;
+             });
+}
+
+
 TEST_CASE("testing if sequences with only one local minimum give the same results for programs 3,4,5A,5B", "[property]"){
 
     // Property 1: Descending
