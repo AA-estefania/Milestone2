@@ -9,19 +9,19 @@
 * @param widths the widths of the paintings
 * @return a tuple containing the number of platforms used, the optimal total height, and the number of paintings on each platform
 */
-std::tuple<int, int, std::vector<int>> program3(int n, int W, std::vector<int> heights, std::vector<int> widths){
-    long minHeight = INT_MAX;
+std::tuple<int, int, std::vector<int>> program3(int n, int W, const std::vector<int>& heights, const std::vector<int>& widths){
+    long minHeight = LONG_MAX;
     int bestPlatformCount = 0;
     std::vector<int> bestPaintingsOnPlatforms;
 
-    int totalCombinations = 1 << (n - 1); // 2^(n-1) possible configurations
+    long totalCombinations = 1 << (n - 1); // 2^(n-1) possible configurations
 
     // Iterate over all possible ways to divide paintings into platforms
-    for (int mask = 0; mask < totalCombinations; mask++) {
-        int currentPlatformWidth = 0;
-        int currentPlatformHeight = 0;
+    for (long mask = 0; mask < totalCombinations; mask++) {
+        long currentPlatformWidth = 0;
+        long currentPlatformHeight = 0;
         long totalHeight = 0;
-        int platformCount = 1;
+        long platformCount = 1;
         std::vector<int> paintingsOnPlatforms;
         int paintingCount = 0;
 
@@ -35,11 +35,11 @@ std::tuple<int, int, std::vector<int>> program3(int n, int W, std::vector<int> h
 
             // Add painting to the current platform
             currentPlatformWidth += widths[i];
-            currentPlatformHeight = std::max(currentPlatformHeight, heights[i]);
+            currentPlatformHeight = std::max(currentPlatformHeight, (long)heights[i]);
             paintingCount++;
 
-            // If we need to start a new platform (based on mask), finalize current platform
-            if ((mask & (1 << i)) || i == n - 1) { // Start new platform if bit is set or last painting
+            // If we need to start a new platform (based on mask)
+            if ((i < n - 1) && (mask & (1 << i))) { // Start new platform if bit is set
                 totalHeight += currentPlatformHeight;
                 paintingsOnPlatforms.push_back(paintingCount);
 
@@ -50,16 +50,22 @@ std::tuple<int, int, std::vector<int>> program3(int n, int W, std::vector<int> h
             }
         }
 
-        // Finalize and check if this configuration is valid and has minimal height
-        if (valid && totalHeight < minHeight) {
+        // Finalize the last platform
+        totalHeight += currentPlatformHeight;
+        paintingsOnPlatforms.push_back(paintingCount);
+
+        auto numberOfPaintings = std::reduce(paintingsOnPlatforms.begin(), paintingsOnPlatforms.end());
+        // Check if this configuration is valid and has minimal height
+        if (valid && totalHeight < minHeight and numberOfPaintings==n) {
             minHeight = totalHeight;
-            bestPlatformCount = platformCount - 1;
-            bestPaintingsOnPlatforms = paintingsOnPlatforms;
+            bestPlatformCount = platformCount;
+            bestPaintingsOnPlatforms = paintingsOnPlatforms; // Replace instead of appending
         }
     }
 
     return std::make_tuple(bestPlatformCount, minHeight, bestPaintingsOnPlatforms);
 }
+
 
 //int main(){
 //    int n, W;
