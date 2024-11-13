@@ -824,3 +824,89 @@ TEST_CASE("testing program 1 total number of paintings on each platform= total p
 
              });
 }
+
+
+
+TEST_CASE("testing if monotonically non-increasing sequences give the same results for programs 1,2,3, and 4", "[property]") {
+    rc::prop("Check if all the paintings and total height are consistent across programs",
+             []() {
+                 // Generate the number of paintings and maximum width
+                 int n = *rc::gen::inRange(1, 30).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, 10000).as("Maximum Width (W)");
+
+                 // Generate the first height and create a monotonically non-increasing sequence of heights
+                 int firstHeight = *rc::gen::inRange(1, 10000).as("FirstHeight");
+                 std::vector<int> heights = *rc::gen::apply([n, firstHeight]() {
+                     std::vector<int> heights;
+                     heights.push_back(firstHeight);
+                     for (int i = 1; i < n; ++i) {
+                         int maxHeight = heights.back();
+                         std::uniform_int_distribution<> distrib(0, maxHeight);
+                         static std::random_device rd;
+                         static std::mt19937 gen(rd());
+                         int nextHeight = distrib(gen);
+                         heights.push_back(nextHeight);
+                     }
+                     return heights;
+                 }).as("heights");
+
+                 // Generate widths
+                 std::vector<int> widths = *rc::gen::container<std::vector<int>>(n, rc::gen::inRange(1, W)).as("widths");
+
+                 // Assertions to ensure correct sizes
+                 RC_ASSERT(heights.size() == n);
+                 RC_ASSERT(widths.size() == n);
+
+                 // Call program1
+                 auto [number_of_platforms1, total_height1, num_paintings_per_platform1] = program1(n, W, heights, widths);
+                 int total_number_of_paintings1 = std::accumulate(num_paintings_per_platform1.begin(), num_paintings_per_platform1.end(), 0);
+
+                 // Call program2
+                 auto [number_of_platforms2, total_height2, num_paintings_per_platform2] = program2(n, W, heights, widths);
+                 int total_number_of_paintings2 = std::accumulate(num_paintings_per_platform2.begin(), num_paintings_per_platform2.end(), 0);
+
+                 // Call program3
+                 auto [number_of_platforms3, total_height3, num_paintings_per_platform3] = program3(n, W, heights, widths);
+                 int total_number_of_paintings3 = std::accumulate(num_paintings_per_platform3.begin(), num_paintings_per_platform3.end(), 0);
+
+                 // Call program4
+                 auto [number_of_platforms4, total_height4, num_paintings_per_platform4] = program4(n, W, heights, widths);
+                 int total_number_of_paintings4 = std::accumulate(num_paintings_per_platform4.begin(), num_paintings_per_platform4.end(), 0);
+
+                 // Logging all results
+                 std::stringstream ss;
+                 ss << "n (" << n << "), W (" << W << "):\n";
+                 ss << "  Heights size: " << heights.size() << "\n";
+                 ss << "  Widths size: " << widths.size() << "\n";
+                 ss << "  Program1 - Platforms: " << number_of_platforms1 << ", Total Height: " << total_height1
+                    << ", Total Paintings: " << total_number_of_paintings1 << "\n";
+                 ss << "  Program2 - Platforms: " << number_of_platforms2 << ", Total Height: " << total_height2
+                    << ", Total Paintings: " << total_number_of_paintings2 << "\n";
+                 ss << "  Program3 - Platforms: " << number_of_platforms3 << ", Total Height: " << total_height3
+                    << ", Total Paintings: " << total_number_of_paintings3 << "\n";
+                 ss << "  Program4 - Platforms: " << number_of_platforms4 << ", Total Height: " << total_height4
+                    << ", Total Paintings: " << total_number_of_paintings4 << "\n";
+                 ss << "  num_paintings_per_platform1: " << vectorToString(num_paintings_per_platform1) << "\n";
+                 ss << "  num_paintings_per_platform2: " << vectorToString(num_paintings_per_platform2) << "\n";
+                 ss << "  num_paintings_per_platform3: " << vectorToString(num_paintings_per_platform3) << "\n";
+                 ss << "  num_paintings_per_platform4: " << vectorToString(num_paintings_per_platform4) << "\n";
+
+                 std::string log_output = ss.str();
+                 RC_LOG(log_output);
+
+                 // Assertions to ensure all programs return the same total_number_of_paintings
+                 RC_ASSERT(total_number_of_paintings1 == total_number_of_paintings2);
+                 RC_ASSERT(total_number_of_paintings1 == total_number_of_paintings3);
+                 RC_ASSERT(total_number_of_paintings1 == total_number_of_paintings4);
+
+                 // Assertions to ensure all programs return the same total_height
+                 RC_ASSERT(total_height1 == total_height2);
+                 RC_ASSERT(total_height1 == total_height3);
+                 RC_ASSERT(total_height1 == total_height4);
+
+                 RC_ASSERT(total_number_of_paintings1 == n);
+
+                 return true;
+             }
+    );
+}
