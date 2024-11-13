@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
-project(COP4533)
+project(COP4533Milestone2)
 
 
 #set standard enviroemnt
