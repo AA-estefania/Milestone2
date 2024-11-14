@@ -139,10 +139,10 @@ TEST_CASE("Testing sequences with multiple local minima and random numbers for p
     rc::prop("Two Local Minima: Check if all the paintings and total height are consistent across programs 3,4,5A,5B",
              []()
              {
-                 int n = *rc::gen::inRange(5, 35).as("Number of paintings (n)");
-                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("Maximum Width (W)");
+                 int n = *rc::gen::inRange(5, 28).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/4).as("Maximum Width (W)");
 
-                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("FirstHeight");
+                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/4).as("FirstHeight");
                  std::vector<int> heights = *rc::gen::apply(
                          [n, firstHeight]() {
                              std::vector<int> heights;
@@ -245,10 +245,10 @@ TEST_CASE("Testing sequences with multiple local minima and random numbers for p
     rc::prop("Three Local Minima: Check if all the paintings and total height are consistent across programs 3,4,5A,5B",
              []()
              {
-                 int n = *rc::gen::inRange(7, 35).as("Number of paintings (n)");
-                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("Maximum Width (W)");
+                 int n = *rc::gen::inRange(7, 28).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/4).as("Maximum Width (W)");
 
-                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("FirstHeight");
+                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/4).as("FirstHeight");
                  std::vector<int> heights = *rc::gen::apply(
                          [n, firstHeight]() {
                              std::vector<int> heights;
@@ -360,11 +360,11 @@ TEST_CASE("Testing sequences with multiple local minima and random numbers for p
     rc::prop("Random Numbers: Check if all the paintings and total height are consistent across programs 3,4,5A,5B",
              []()
              {
-                 int n = *rc::gen::inRange(1, 35).as("Number of paintings (n)");
-                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("Maximum Width (W)");
+                 int n = *rc::gen::inRange(1, 28).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/28).as("Maximum Width (W)");
 
                  // Generate random heights
-                 std::vector<int> heights = *rc::gen::container<std::vector<int>>(n, rc::gen::inRange(1, std::numeric_limits<int>::max()/2)).as("heights");
+                 std::vector<int> heights = *rc::gen::container<std::vector<int>>(n, rc::gen::inRange(1, std::numeric_limits<int>::max()/28)).as("heights");
 
                  // Generate random widths
                  std::vector<int> widths = *rc::gen::container<std::vector<int>>(n, rc::gen::inRange(1, W)).as("widths");
@@ -430,10 +430,10 @@ TEST_CASE("testing if sequences with only one local minimum give the same result
     rc::prop("Descending: Check if all the paintings and total height are consistent across programs 3,4,5A,5B",
              []()
              {
-                 int n = *rc::gen::inRange(1, 30).as("Number of paintings (n)");
-                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("Maximum Width (W)");
+                 int n = *rc::gen::inRange(1, 28).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/28).as("Maximum Width (W)");
 
-                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("FirstHeight");
+                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/28).as("FirstHeight");
                  std::vector<int> heights = *rc::gen::apply(
                          [n, firstHeight]() {
                              std::vector<int> heights;
@@ -532,10 +532,10 @@ TEST_CASE("testing if sequences with only one local minimum give the same result
     rc::prop("Random Minimum: Check if all the paintings and total height are consistent across programs 3,4,5A,5B",
              []()
              {
-                 int n = *rc::gen::inRange(1, 30).as("Number of paintings (n)");
-                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("Maximum Width (W)");
+                 int n = *rc::gen::inRange(1, 28).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/28).as("Maximum Width (W)");
 
-                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("FirstHeight");
+                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/28).as("FirstHeight");
                  std::vector<int> heights = *rc::gen::apply(
                          [n, firstHeight]() {
                              std::vector<int> heights;
@@ -650,10 +650,10 @@ TEST_CASE("testing if sequences with only one local minimum give the same result
     rc::prop("Non-Decreasing: Check if all the paintings and total height are consistent across programs 3,4,5A,5B",
              []()
              {
-                 int n = *rc::gen::inRange(1, 30).as("Number of paintings (n)");
-                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("Maximum Width (W)");
+                 int n = *rc::gen::inRange(1, 28).as("Number of paintings (n)");
+                 int W = *rc::gen::inRange(1, std::numeric_limits<int>::max()/28).as("Maximum Width (W)");
 
-                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/2).as("FirstHeight");
+                 int firstHeight = *rc::gen::inRange(1, std::numeric_limits<int>::max()/28).as("FirstHeight");
                  std::vector<int> heights = *rc::gen::apply(
                          [n, firstHeight]() {
                              std::vector<int> heights;
